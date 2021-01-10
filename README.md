@@ -1,4 +1,4 @@
-# ESP8266 onewire to InfluxDB client
+# ESP8266 DS1820 MQTT client
 
 ### A simple Web configurable MQTT client for ESP8266 and onewire ds1820
 
