@@ -177,7 +177,7 @@ void setup() {
     pinMode(APREQUEST, INPUT_PULLUP);
     pinMode(LED, OUTPUT);
     digitalWrite(LED, LED_OFF);
-    
+
     Serial.begin(115200);
     Serial.println("\n\nESP8266 ds1820 to MQTT\n\n");
 
@@ -191,8 +191,10 @@ void setup() {
 
     sensors.begin();
     delay(100);
-
+    
     scount = sensors.getDeviceCount();
+    sensors.setResolution(12);
+    
     if (scount > MAX_SENSORS) {
         scount = MAX_SENSORS;
     }
@@ -202,7 +204,7 @@ void setup() {
             for (uint8_t j = 0; j < 8; j++) {
                 Serial.printf("%02X", sensor[i][j]);
             }
-            Serial.printf("\n");
+            Serial.printf(" resolution: %d bits\n",sensors.getResolution(sensor[i]));
         }
     }
 
@@ -247,7 +249,7 @@ void loop() {
             for (int i = 0; i < scount; i++) {
                 if (sensors.isConnected(sensor[i])) {
                     sens[i] = sensors.getTempC(sensor[i]);
-                    Serial.printf("sensor %d = %.4f°C\n", i, sens[i]);
+                    Serial.printf("sensor %d raw: 0x%X = %.4f°C\n", i, sensors.getTemp(sensor[i]), sens[i]);
                 } else {
                     sens[i] = NULL;
                 }
@@ -267,8 +269,13 @@ void loop() {
                 //      TAG_DS1820 = 6
                 if (mqttclient.connect(myhostname, mqtt_user, mqtt_pass)) {
                     for (int i = 0; i < scount; i++) {
-                        if (sens[i] != NULL && sens[i] != 85.0 && sens[i] > -60.0) {
-                            sprintf(json, "{\"type\":6,\"t\":%d}", int(sens[i] * 10 + .5));
+                        if (sens[i] != NULL && sens[i] != 85.0 && sens[i] > -60.0 && strlen(sensname[i]) > 0) {
+                            // why does round() not work?
+                            if (sens[i] >= 0) {
+                                sprintf(json, "{\"type\":6,\"t\":%d}", int(sens[i] * 10.0 +0.5));
+                            } else {
+                                sprintf(json, "{\"type\":6,\"t\":%d}", int(sens[i] * 10.0 -0.5));
+                            }
                             if (strlen(topicbase) > 0) {
                                 sprintf(topic, "%s/%s", topicbase, sensname[i]);
                             } else {
@@ -358,7 +365,7 @@ void httpWifis() {
     char tablerows[1024];
     char rowbuf[256];
     char ssid[33];
-    char pass[33];
+    char pass[64];
     int counter = 0;
 
     portal_timer = millis();
@@ -378,7 +385,7 @@ void httpWifis() {
             file.readBytesUntil('\n', pass, 33);
             sprintf(rowbuf, "<tr><td>SSID</td><td><input type=\"text\" name=\"ssid%d\" maxlength=\"32\" value=\"%s\"></td></tr>", counter, ssid);
             strcat(tablerows, rowbuf);
-            sprintf(rowbuf, "<tr><td>PASS</td><td><input type=\"text\" name=\"pass%d\" maxlength=\"32\" value=\"%s\"></td></tr>", counter, pass);
+            sprintf(rowbuf, "<tr><td>PASS</td><td><input type=\"text\" name=\"pass%d\" maxlength=\"63\" value=\"%s\"></td></tr>", counter, pass);
             strcat(tablerows, rowbuf);
             counter++;
         }
