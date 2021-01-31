@@ -68,6 +68,12 @@ See [FORMATS.md](FORMATS.md).
 
 ## Schematic for ESP12E module
 
+**NOTE** The 4.7k resistor is needed **only** when parasite power is used. If the sensor is feed with VCC, 
+then it can be left out. 
+
+Ground wires of the sensor and programming interface have been left out from the schematic because they 
+are just obvious.
+
 [![schematic](images/esp8266_ds1820_schema_400x467.jpg)](images/esp8266_ds1820_schema.jpg)
 
 ## Example solution
