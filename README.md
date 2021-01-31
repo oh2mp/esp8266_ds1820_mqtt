@@ -65,3 +65,16 @@ precreate them and then you dont' have to use the portal at all. Just place yout
 the data directory along the html files and upload them with ESP8266 filesystem uploader.
 
 See [FORMATS.md](FORMATS.md).
+
+## Schematic for ESP12E module
+
+[![schematic](images/esp8266_ds1820_schema_400x467.jpg)](images/esp8266_ds1820_schema.jpg)
+
+## Example solution
+
+An old telephone plug recycled as a circuit case. Because RJ11 is some kind of a standard for 
+Dallas/Maxim 1-Wire, there are an ESP12E and 3.3V DC-DC buck converter in the plug where a female RJ11 
+was already present. 
+
+[![phone plug](images/esp8266_in_phone_plug_400x300.jpg)](images/esp8266_in_phone_plug.jpg)
+
